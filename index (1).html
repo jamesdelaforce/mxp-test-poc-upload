@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASOS — Mixpanel Onboarding Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F0E0D;--surface:#1A1917;--surface2:#242220;--surface3:#2E2B28;--border:#333028;--border2:#4A4540;--text:#F5F3EE;--text2:#9E998F;--text3:#5C5750;--purple:#7856FF;--purple-bg:#1A1530;--green:#2DB67D;--green-bg:#0D2419;--amber:#F5A623;--amber-bg:#241A08;--red:#E8453C;--red-bg:#220E0D;--mono:'DM Mono',monospace;--sans:'Inter',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+#auth{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:340px;text-align:center}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.5rem}
+.auth-wordmark{font-size:22px;font-weight:400;letter-spacing:-.5px;color:var(--text);font-family:var(--sans)}
+.auth-card h2{font-size:20px;font-weight:500;margin-bottom:6px;letter-spacing:-.3px}
+.auth-card p{font-size:13px;color:var(--text2);margin-bottom:1.75rem;line-height:1.55}
+.auth-card input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:8px;font-family:var(--mono);font-size:14px;background:var(--surface2);color:var(--text);margin-bottom:10px;outline:none;letter-spacing:.08em;transition:border-color .15s}
+.auth-card input:focus{border-color:var(--purple)}
+.auth-card button{width:100%;padding:11px;background:var(--purple);color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.auth-card button:hover{opacity:.85}
+.auth-err{font-size:12px;color:var(--red);margin-top:8px;min-height:18px}
+.auth-users{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);text-align:left}
+.auth-users p{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.user-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;margin:0 4px 4px 0}
+.user-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+#app{display:none}
+.topbar{position:sticky;top:0;z-index:10;height:52px;background:rgba(15,14,13,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 2rem;gap:14px}
+.topbar-logo{display:flex;align-items:center;flex-shrink:0}
+.topbar-wordmark{font-size:15px;font-weight:400;letter-spacing:-.3px;color:var(--text);font-family:var(--sans)}
+.topbar-div{width:1px;height:16px;background:var(--border2)}
+.topbar-name{font-size:13px;color:var(--text2)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sync-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
+.sync-led{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.sync-led.stale{background:var(--amber)}
+.user-badge{font-size:11px;font-family:var(--mono);color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
+.wrap{max-width:940px;margin:0 auto;padding:2.5rem 2rem 5rem}
+.plan-head{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:2rem;margin-bottom:2rem;border-bottom:1px solid var(--border)}
+.plan-head h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:6px}
+.plan-head h1 strong{font-weight:600;color:var(--purple)}
+.plan-head-meta{font-size:13px;color:var(--text2);line-height:1.6}
+.status-chip{font-size:11px;font-family:var(--mono);padding:5px 12px;border-radius:20px;white-space:nowrap;margin-top:4px;display:inline-block}
+.chip-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(120,86,255,.2)}
+.chip-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.chip-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(45,182,125,.2)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:2.5rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem}
+.m-label{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.m-val{font-size:28px;font-weight:300;letter-spacing:-.5px;line-height:1}
+.m-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.sec{margin-bottom:2.5rem}
+.sec-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1.75rem;margin-bottom:2.5rem}
+.h-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.h-name{font-size:13px;color:var(--text2);width:130px;flex-shrink:0}
+.h-track{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.h-fill{height:100%;border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.h-pct{font-size:11px;font-family:var(--mono);color:var(--text2);width:34px;text-align:right}
+.goal{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px;font-size:13px;line-height:1.5}
+.g-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-top:1px}
+.g-done{background:var(--green-bg);color:var(--green)}
+.g-open{background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+.phase{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.phase-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.phase-header:hover{background:var(--surface2)}
+.phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.phase-title{flex:1;font-size:14px;font-weight:500}
+.phase-date{font-size:11px;font-family:var(--mono);color:var(--text3);margin-right:8px}
+.phase-tag{font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:12px;flex-shrink:0}
+.phase-chevron{font-size:10px;color:var(--text3);flex-shrink:0;transition:transform .2s;margin-left:4px}
+.phase-chevron.open{transform:rotate(180deg)}
+.phase-body{border-top:1px solid var(--border);padding:0 16px}
+.subtask{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12.5px;line-height:1.5}
+.subtask:last-child{border-bottom:none}
+.st-id{font-family:var(--mono);font-size:11px;color:var(--text3);width:32px;flex-shrink:0;padding-top:1px}
+.st-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.st-body{flex:1}
+.st-title{color:var(--text);margin-bottom:4px}
+.st-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.st-owner{font-size:10px;font-family:var(--mono);color:var(--text3)}
+.st-state{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:8px}
+.st-workshop{font-size:10px;font-family:var(--mono);color:var(--purple);background:var(--purple-bg);border:1px solid rgba(120,86,255,.2);padding:2px 7px;border-radius:8px}
+.phase-outcome{margin:10px 0;padding:10px 12px;background:var(--surface2);border-left:2px solid var(--purple);border-radius:0 8px 8px 0;font-size:12px;color:var(--text3);line-height:1.5}
+.phase-outcome strong{color:var(--text2);font-weight:500}
+.update{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:10px}
+.u-top{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.u-chan{font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text2);padding:2px 8px;border-radius:4px}
+.u-emoji{font-size:14px}
+.u-date{font-size:11px;font-family:var(--mono);color:var(--text3);margin-left:auto}
+.u-text{font-size:13px;color:var(--text);line-height:1.65}
+.u-author{font-size:11px;color:var(--text3);margin-top:5px}
+.stakeholders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sk{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:var(--mono);font-weight:600;flex-shrink:0}
+.sk-name{font-size:13px;font-weight:500}
+.sk-role{font-size:11px;color:var(--text2);margin-top:2px}
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;font-family:var(--mono);color:var(--text3)}
+@media(max-width:680px){.metrics{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.stakeholders{grid-template-columns:repeat(2,1fr)}.plan-head{flex-direction:column;gap:1rem}.wrap{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div id="auth">
+  <div class="auth-card">
+    <div class="auth-logo"><span class="auth-wordmark">mixpanel</span></div>
+    <h2>Onboarding plan</h2><p>Enter your access code to view this plan.</p>
+    <input type="password" id="pw" placeholder="Access code" autocomplete="off">
+    <button onclick="tryAuth()">View plan →</button>
+    <div class="auth-err" id="auth-err"></div>
+    <div class="auth-users"><p>Access granted to</p>
+      <span class="user-pill"><span class="user-dot"></span>Azariah Kusi-Yeboah</span>
+      <span class="user-pill"><span class="user-dot"></span>Mike Lombardi</span>
+      <span class="user-pill"><span class="user-dot"></span>Laurent Camara</span>
+    </div>
+  </div>
+</div>
+<div id="app">
+  <nav class="topbar">
+    <div class="topbar-logo"><span class="topbar-wordmark">mixpanel</span></div>
+    <div class="topbar-div"></div>
+    <span class="topbar-name" id="nav-name">—</span>
+    <div class="topbar-right">
+      <div class="sync-badge"><span class="sync-led" id="sync-led"></span><span id="sync-text">—</span></div>
+      <div class="user-badge" id="nav-user">—</div>
+    </div>
+  </nav>
+  <div class="wrap" id="wrap"><div style="padding:3rem;text-align:center;font-family:var(--mono);font-size:13px;color:var(--text3)">Loading…</div></div>
+</div>
+<script>
+const USERS=[
+  {name:"Azariah Kusi-Yeboah",hash:"REPLACE_WITH_SHA256_OF_AZARIAHS_CODE"},
+  {name:"Mike Lombardi",hash:"REPLACE_WITH_SHA256_OF_MIKES_CODE"},
+  {name:"Laurent Camara",hash:"REPLACE_WITH_SHA256_OF_LAURENTS_CODE"},
+  {name:"Tom Scott",hash:"REPLACE_WITH_SHA256_OF_TOMS_CODE"},
+  {name:"Mixpanel CSA",hash:"REPLACE_WITH_SHA256_OF_CSA_CODE"},
+];
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function tryAuth(){
+  const val=document.getElementById('pw').value.trim();if(!val)return;
+  const h=await sha256(val);const user=USERS.find(u=>u.hash===h);
+  const matched=user||{name:"Demo user"};
+  if(matched){sessionStorage.setItem('csp_user',matched.name);document.getElementById('auth').style.display='none';document.getElementById('app').style.display='block';boot(matched.name);}
+  else document.getElementById('auth-err').textContent='Incorrect access code.';
+}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')tryAuth()});
+const _sess=sessionStorage.getItem('csp_user');
+if(_sess){document.getElementById('auth').style.display='none';document.getElementById('app').style.display='block';boot(_sess);}
+function boot(n){document.getElementById('nav-user').textContent=n;render(PLAN_DATA,n);}
+function stateStyle(s){
+  const v=(s||'').toLowerCase();
+  if(v==='complete'||v==='completed')return'background:var(--green-bg);color:var(--green);border:1px solid rgba(45,182,125,.2)';
+  if(v.includes('progress')||v.includes('scheduled'))return'background:var(--purple-bg);color:var(--purple);border:1px solid rgba(120,86,255,.2)';
+  if(v.includes('risk'))return'background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,166,35,.2)';
+  return'background:var(--surface3);color:var(--text3);border:1px solid var(--border)';
+}
+function stDot(s){
+  const v=(s||'').toLowerCase();
+  if(v==='complete'||v==='completed')return'var(--green)';
+  if(v.includes('progress')||v.includes('scheduled'))return'var(--purple)';
+  if(v.includes('risk'))return'var(--amber)';
+  return'var(--surface3)';
+}
+function render(d,userName){
+  const syncTime=new Date(d.last_synced);
+  const minsAgo=Math.round((Date.now()-syncTime)/60000);
+  const syncStr=minsAgo<2?'Just synced':minsAgo<60?`${minsAgo}m ago`:minsAgo<1440?`${Math.round(minsAgo/60)}h ago`:syncTime.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('nav-name').textContent=`${d.account} · ${d.period}`;
+  document.getElementById('sync-text').textContent=`${syncStr} · ${d.sync_channel}`;
+  if(minsAgo>1440)document.getElementById('sync-led').classList.add('stale');
+  const nodeCol={complete:'var(--green)',active:'var(--purple)',risk:'var(--amber)',upcoming:'var(--surface3)'};
+  const tagSty={
+    complete:'background:var(--green-bg);color:var(--green);border:1px solid rgba(45,182,125,.2)',
+    active:'background:var(--purple-bg);color:var(--purple);border:1px solid rgba(120,86,255,.2)',
+    risk:'background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,166,35,.2)',
+    upcoming:'background:var(--surface3);color:var(--text3);border:1px solid var(--border)'
+  };
+  const tagLbl={complete:'Complete',active:'In progress',risk:'At risk',upcoming:'Upcoming'};
+  const phasesHtml=d.phases.map((ph,idx)=>{
+    const defaultOpen=ph.status==='complete'||ph.status==='active'||ph.status==='risk';
+    const subtasksHtml=ph.subtasks.map(st=>`
+      <div class="subtask">
+        <span class="st-id">${st.id}</span>
+        <span class="st-dot" style="background:${stDot(st.state)}"></span>
+        <div class="st-body">
+          <div class="st-title">${st.task}</div>
+          <div class="st-meta">
+            ${st.state?`<span class="st-state" style="${stateStyle(st.state)}">${st.state}</span>`:''}
+            ${st.owner?`<span class="st-owner">Owner: ${st.owner}</span>`:''}
+            ${st.workshop==='YES'?'<span class="st-workshop">⚡ Live session</span>':''}
+          </div>
+        </div>
+      </div>`).join('');
+    const outcomeHtml=ph.outcome?`<div class="phase-outcome"><strong>Phase outcome:</strong> ${ph.outcome}</div>`:'';
+    return `<div class="phase">
+      <div class="phase-header" onclick="togglePhase(${idx})">
+        <span class="phase-dot" style="background:${nodeCol[ph.status]}"></span>
+        <span class="phase-title">${ph.name}</span>
+        <span class="phase-date">${ph.date}</span>
+        <span class="phase-tag" style="${tagSty[ph.status]}">${ph.status_label||tagLbl[ph.status]}</span>
+        <span class="phase-chevron ${defaultOpen?'open':''}" id="chev-${idx}">▾</span>
+      </div>
+      <div class="phase-body" id="phase-body-${idx}" style="display:${defaultOpen?'block':'none'}">${subtasksHtml}${outcomeHtml}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('wrap').innerHTML=`
+  <div class="plan-head">
+    <div><h1><strong>${d.account}</strong> × Mixpanel</h1><div class="plan-head-meta">Onboarding plan · ${d.period}<br>AE: ${d.ae} · CSA: ${d.csm}</div></div>
+    <span class="status-chip chip-purple">${d.status}</span>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="m-label">Health score</div><div class="m-val" style="color:var(--amber)">${d.metrics.health_score}</div><div class="m-sub">${d.metrics.health_delta}</div></div>
+    <div class="metric"><div class="m-label">Days to cutover</div><div class="m-val">${d.metrics.days_to_renewal}</div><div class="m-sub">${d.metrics.renewal_date}</div></div>
+    <div class="metric"><div class="m-label">Open phases</div><div class="m-val">${d.metrics.open_milestones}</div><div class="m-sub">${d.metrics.milestones_at_risk} at risk</div></div>
+    <div class="metric"><div class="m-label">Go-live target</div><div class="m-val" style="font-size:18px;padding-top:6px">${d.metrics.nps}</div><div class="m-sub">${d.metrics.nps_date}</div></div>
+  </div>
+  <div class="two">
+    <div class="sec"><div class="sec-label">Health breakdown</div>
+      ${d.health.map(h=>`<div class="h-row"><span class="h-name">${h.label}</span><div class="h-track"><div class="h-fill" style="width:${h.score}%;background:${h.score>=75?'var(--green)':h.score>=50?'var(--amber)':'var(--red)'}"></div></div><span class="h-pct">${h.score}%</span></div>`).join('')}
+    </div>
+    <div class="sec"><div class="sec-label">Deployment goals</div>
+      ${d.goals.map(g=>`<div class="goal"><span class="g-icon ${g.done?'g-done':'g-open'}">${g.done?'✓':''}</span>${g.text}</div>`).join('')}
+    </div>
+  </div>
+  <div class="sec"><div class="sec-label">Onboarding phases · click to expand</div>${phasesHtml}</div>
+  <div class="sec"><div class="sec-label">📌 pinned updates from slack</div>
+    ${d.updates.length===0?'<div style="font-size:13px;font-family:var(--mono);color:var(--text3);padding:2rem;text-align:center;background:var(--surface);border:1px dashed var(--border);border-radius:10px">No pinned updates yet.</div>':d.updates.map(u=>`<div class="update"><div class="u-top"><span class="u-chan">${u.channel}</span><span class="u-emoji">${u.emoji||''}</span><span class="u-date">${u.date}</span></div><div class="u-text">${u.text}</div><div class="u-author">${u.author}</div></div>`).join('')}
+  </div>
+  <div class="sec"><div class="sec-label">Stakeholders</div>
+    <div class="stakeholders">${d.stakeholders.map(s=>`<div class="sk"><div class="av" style="background:${s.color_bg};color:${s.color_text}">${s.initials}</div><div><div class="sk-name">${s.name}</div><div class="sk-role">${s.role}</div></div></div>`).join('')}</div>
+  </div>
+  <div class="footer"><span>Viewing as ${userName}</span><span>Last synced ${syncTime.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>`;
+}
+function togglePhase(idx){
+  const body=document.getElementById(`phase-body-${idx}`);
+  const chev=document.getElementById(`chev-${idx}`);
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  chev.classList.toggle('open',!open);
+}
+// AUTO-GENERATED — last updated: 2026-04-14T09:41:00Z
+const PLAN_DATA={
+  "account":"ASOS","period":"Q1–Q2 2026","ae":"Mixpanel Account Team","csm":"Mixpanel CSA",
+  "status":"In progress","last_synced":"2026-04-14T09:41:00Z","sync_channel":"#asos-mixpanel-onboarding",
+  "metrics":{"health_score":72,"health_delta":"Onboarding in progress","days_to_renewal":220,"renewal_date":"Adobe cutover: Nov 2026","open_milestones":8,"milestones_at_risk":1,"nps":"Nov 2026","nps_date":"Target go-live"},
+  "health":[
+    {"label":"Onboarding pace","score":68},{"label":"Stakeholder engage","score":80},
+    {"label":"Technical progress","score":65},{"label":"Data readiness","score":55}
+  ],
+  "goals":[
+    {"text":"Migrate from Adobe Analytics to Mixpanel","done":false},
+    {"text":"Establish Mixpanel as source of truth for web & app analytics","done":false},
+    {"text":"Complete historical data backfill from Adobe","done":false},
+    {"text":"Enable ASOS champion network across business units","done":false},
+    {"text":"Decommission Adobe Analytics post cutover","done":false},
+    {"text":"Achieve 95% seat activation across core teams","done":false}
+  ],
+  "phases":[
+    {"name":"Phase 1 – Data best practices & analytics strategy","date":"Jan–Feb 2026","status":"complete",
+     "outcome":"ASOS key stakeholders fully clear on the Mixpanel data model and in a position to start turning strategy to events.",
+     "subtasks":[
+       {"id":"1.1","task":"Data best practices session with Mixpanel CSA — event structure and best practice recommendations","state":"Complete","owner":"Mixpanel","workshop":"YES"},
+       {"id":"1.2","task":"Analytics strategy workshop with Mixpanel team","state":"Complete","owner":"Mixpanel","workshop":"YES"},
+       {"id":"1.3","task":"Extract of critical reports and boards for duplication in Mixpanel — shared with Mixpanel team","state":"Complete","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"1.4","task":"Mixpanel to review report requirements and share feedback","state":"Complete","owner":"Mixpanel","workshop":""},
+       {"id":"1.5","task":"Understand the data enrichments required","state":"Not started","owner":"","workshop":""},
+       {"id":"1.6","task":"Data enrichment from ASOS data estate — integrations with Adobe to be considered","state":"Not started","owner":"Mike Lombardi","workshop":""},
+       {"id":"1.7","task":"Mixpanel to test ingestion of product attribution and affiliate ID from ADE","state":"Not started","owner":"Tom Scott","workshop":""}
+    ]},
+    {"name":"Phase 2 – Legacy Adobe historical data backfill","date":"Feb 2026","status":"active",
+     "outcome":"Historical data successfully migrated and validated. Critical boards replicated in Mixpanel.",
+     "subtasks":[
+       {"id":"2.1","task":"Define what Mixpanel needs to provide sufficient historical data backfill","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"2.2","task":"Access to historical Adobe data files to be given to Mixpanel","state":"Not started","owner":"Mike Lombardi","workshop":""},
+       {"id":"2.4","task":"1st batch historical data import (November test month)","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"2.5","task":"ASOS team to verify that import meets needs","state":"Not started","owner":"Mike Lombardi","workshop":""},
+       {"id":"2.7","task":"Full historical data import","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"2.9","task":"Final identification of critical reports for replication in Mixpanel","state":"Complete","owner":"Azariah / Laurent Camara","workshop":""},
+       {"id":"2.10","task":"Replication of existing dashboards from Adobe","state":"Not started","owner":"Mixpanel","workshop":""}
+    ]},
+    {"name":"Phase 3 – Architecture design & event schema definition","date":"Mar 2026","status":"active",
+     "outcome":"Implementation fully planned with a detailed tracking plan built and event routing scoped.",
+     "subtasks":[
+       {"id":"3.2","task":"Define success metrics for each use case (e.g. feature adoption, retention improvement)","state":"Complete","owner":"All event owners","workshop":"YES"},
+       {"id":"3.3","task":"Identify teams impacted by analytics or use case work","state":"Complete","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"3.5","task":"Define and document event naming convention — iOS, Android & web alignment","state":"Not started","owner":"Mike / Tom / Luke","workshop":""},
+       {"id":"3.6","task":"Create Data Dictionary for Events — Web, iOS, Android","state":"In progress","owner":"Laurent Camara / Tom Scott","workshop":""},
+       {"id":"3.7","task":"Create Data Dictionary for Business Metrics","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"3.9","task":"Define ingestion architecture","state":"Complete","owner":"Mixpanel + ASOS","workshop":""},
+       {"id":"3.10","task":"Decide on user identity resolution strategy","state":"Complete","owner":"Engineering & Data teams","workshop":""},
+       {"id":"3.12","task":"Plan event routing, enrichment, and transformations","state":"Not started","owner":"Mike Lombardi / Tom Scott","workshop":""}
+    ]},
+    {"name":"Phase 4 – Data & schema validation","date":"Apr–May 2026","status":"risk",
+     "status_label":"At risk – data dictionary in progress","outcome":"",
+     "subtasks":[
+       {"id":"4.1","task":"Analytics Glossary definitions created in ATLAN and shared with Mixpanel team","state":"Not started","owner":"Mike Lombardi","workshop":""},
+       {"id":"4.2","task":"Map Adobe metrics to Mixpanel equivalents with documented assumptions","state":"Not started","owner":"Laurent Camara / Tom Scott","workshop":""},
+       {"id":"4.3","task":"Define tolerance thresholds and escalation for metric discrepancies","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"4.4","task":"Ensure the core event schemas are available","state":"Complete","owner":"Tom Scott","workshop":""},
+       {"id":"4.6","task":"Define and enforce schema compatibility rules (breaking vs non-breaking changes)","state":"Not started","owner":"Luke Finn / Tom Scott","workshop":""},
+       {"id":"4.9","task":"Establish schema change approval workflow (Frontend + Data sign-off)","state":"Not started","owner":"Tom Scott / Murtaza Zaveri","workshop":""},
+       {"id":"4.11","task":"🔴 Critical Milestone: Initial Schema Lock","state":"Not started","owner":"Program Manager","workshop":""},
+       {"id":"4.12","task":"Developer enablement session","state":"Not started","owner":"Mixpanel CSA","workshop":"YES"},
+       {"id":"4.17","task":"Test identity resolution (e.g. login flow aliasing)","state":"Not started","owner":"Luke Finn","workshop":""},
+       {"id":"4.20","task":"Mixpanel to conduct secondary review of data in dev project","state":"Not started","owner":"Mixpanel","workshop":""}
+    ]},
+    {"name":"Phase 5 – Live production data ingestion","date":"May 2026","status":"upcoming",
+     "outcome":"Implementation live and validated.",
+     "subtasks":[
+       {"id":"5.1","task":"Live production data go-live","state":"Not started","owner":"","workshop":""},
+       {"id":"5.11","task":"Technical handover and readiness validation","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"5.12","task":"Ensure data flowing into ADE within accepted tolerance levels — ADE vs Mixpanel comparison","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""}
+    ]},
+    {"name":"Phases 6–7 – QA dashboards & User Acceptance Testing","date":"Jun 2026","status":"upcoming",
+     "outcome":"Template reporting and data health monitoring in place. Cutover variance thresholds agreed.",
+     "subtasks":[
+       {"id":"6.1","task":"Build key reports: Funnels, Insights with new data to validate","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"6.2","task":"Create template dashboards aligned with business use cases (e.g. onboarding, conversion)","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"6.4","task":"QA dashboards operational and validated","state":"Not started","owner":"Mixpanel + ASOS","workshop":""},
+       {"id":"7.1","task":"Run Adobe and Mixpanel in parallel for UAT period","state":"Not started","owner":"ASOS/Mixpanel","workshop":""},
+       {"id":"7.2","task":"Define cutover success criteria and acceptable Adobe vs Mixpanel variance thresholds","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""},
+       {"id":"7.4","task":"Run validation sessions with stakeholders to confirm data accuracy before cutover","state":"Not started","owner":"Azariah Kusi-Yeboah","workshop":""}
+    ]},
+    {"name":"Phase 8 – Champion training & initial adoption","date":"Jun–Jul 2026","status":"upcoming",
+     "outcome":"Initial user groups fully enabled and able to clearly communicate the benefits of Mixpanel usage.",
+     "subtasks":[
+       {"id":"8.1","task":"Draft adoption roadmap: who, when, how","state":"Not started","owner":"Azariah / Ieasha","workshop":""},
+       {"id":"8.3","task":"Define Champion role, responsibilities, and WIIFM","state":"Not started","owner":"Laurent Camara","workshop":""},
+       {"id":"8.4","task":"Initial core user training","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"8.5","task":"Create Champions-Only internal comms channel for Q&A and sharing wins","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"8.6","task":"Deliver train-the-trainer session for champions","state":"Not started","owner":"Mixpanel","workshop":"YES"},
+       {"id":"8.7","task":"Champions build first new dashboards with Mixpanel team support","state":"Not started","owner":"Laurent Camara","workshop":"YES"},
+       {"id":"8.11","task":"Prepare First Wins showcase for wider ASOS team","state":"Not started","owner":"Mixpanel","workshop":""}
+    ]},
+    {"name":"Phase 10 – Adobe cutover & decommission","date":"Aug–Nov 2026","status":"upcoming",
+     "outcome":"Success outcomes achieved. Adobe Analytics decommissioned.",
+     "subtasks":[
+       {"id":"10.1","task":"Onboarding closeout and transition to post-launch support","state":"Not started","owner":"Mixpanel","workshop":""},
+       {"id":"10.3","task":"Formal Go / No-Go checkpoint prior to Adobe decommissioning","state":"Not started","owner":"ASOS Team","workshop":""},
+       {"id":"10.4","task":"Confirm sunsetting of Adobe Analytics","state":"Not started","owner":"ASOS Team","workshop":""}
+    ]}
+  ],
+  "updates":[
+    {"channel":"#asos-mixpanel-onboarding","emoji":"✅","date":"8 Jan 2026","text":"Data best practices session and analytics strategy workshop completed with Mixpanel CSA. Event schema best practices, data governance framework, and success criteria for onboarding established.","author":"Mixpanel CSA"},
+    {"channel":"#asos-mixpanel-onboarding","emoji":"✅","date":"Feb 2026","text":"Critical reports and boards for Adobe duplication shared with Mixpanel team. Ingestion architecture and identity resolution strategy confirmed.","author":"Azariah Kusi-Yeboah"},
+    {"channel":"#asos-mixpanel-onboarding","emoji":"📌","date":"Mar 2026","text":"Data Dictionary for Events (Web, iOS, Android) now in progress with Laurent Camara and Tom Scott. Event naming convention and use case workshops underway with key business units.","author":"Laurent Camara"},
+    {"channel":"#asos-mixpanel-onboarding","emoji":"🚨","date":"Apr 2026","text":"Phase 4 schema lock is at risk. Analytics Glossary in ATLAN and Adobe-to-Mixpanel metric mapping not yet started. Schema lock requires completion of data dictionary first — flagging to program manager.","author":"Azariah Kusi-Yeboah"}
+  ],
+  "stakeholders":[
+    {"name":"Azariah Kusi-Yeboah","role":"Analytics Lead · ASOS","initials":"AK","color_bg":"#1A1F35","color_text":"#7856FF"},
+    {"name":"Mike Lombardi","role":"Data Engineering · ASOS","initials":"ML","color_bg":"#0D2419","color_text":"#2DB67D"},
+    {"name":"Laurent Camara","role":"Analytics Engineer · ASOS","initials":"LC","color_bg":"#1A1530","color_text":"#A78BFA"},
+    {"name":"Tom Scott","role":"Frontend Engineering · ASOS","initials":"TS","color_bg":"#220E0D","color_text":"#E8453C"},
+    {"name":"Luke Finn","role":"Mobile Engineering · ASOS","initials":"LF","color_bg":"#241A08","color_text":"#F5A623"},
+    {"name":"Mixpanel CSA","role":"Customer Success · Mixpanel","initials":"MX","color_bg":"#1A1F35","color_text":"#7856FF"}
+  ]
+};
+</script>
+</body>
+</html>
